@@ -1,17 +1,38 @@
 package ru.skhool21.rubik.model;
 
-public enum Action {
-	U, U_,
-	D, D_,
-	B, B_,
-	F, F_,
-	L, L_,
-	R, R_,
-	U2, U2_,
-	D2, D2_,
-	B2, B2_,
-	F2, F2_,
-	L2, L2_,
-	R2, R2_
-}
+import org.jetbrains.annotations.NotNull;
 
+public enum Action {
+	U("upClockwise"), U_("upCounterClockwise"),
+	D("downClockwise"), D_("downCounterClockwise"),
+	B("backClockwise"), B_("backCounterClockwise"),
+	F("frontClockwise"), F_("frontCounterClockwise"),
+	L("leftClockwise"), L_("leftCounterClockwise"),
+	R("rightClockwise"), R_("rightCounterClockwise"),
+	U2("upDoubleClockwise"), U2_("upDoubleCounterClockwise"),
+	D2("downDoubleClockwise"), D2_("downDoubleCounterClockwise"),
+	B2("backDoubleClockwise"), B2_("backDoubleCounterClockwise"),
+	F2("frontDoubleClockwise"), F2_("frontDoubleCounterClockwise"),
+	L2("leftDoubleClockwise"), L2_("leftDoubleCounterClockwise"),
+	R2("rightDoubleClockwise"), R2_("rightDoubleCounterClockwise");
+
+	private final String name;
+
+	Action(String name) {
+		this.name = name;
+	}
+
+	public String getName() {
+		return this.name;
+	}
+
+	@NotNull
+	public static Action fromId(int id) {
+		for(Action action : Action.values()){
+			if(action.ordinal() == id){
+				return action;
+			}
+		}
+		return null;
+	}
+}

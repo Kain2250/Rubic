@@ -297,6 +297,78 @@ public class Cub implements RotatorService {
 		left.color[2][2] = buffer;
 	}
 
+	@Override
+	public void frontDoubleClockwise() {
+		frontClockwise();
+		frontClockwise();
+	}
+
+	@Override
+	public void frontDoubleCounterClockwise() {
+		frontCounterClockwise();
+		frontCounterClockwise();
+	}
+
+	@Override
+	public void backDoubleClockwise() {
+		backClockwise();
+		backClockwise();
+	}
+
+	@Override
+	public void backDoubleCounterClockwise() {
+		backCounterClockwise();
+		backCounterClockwise();
+	}
+
+	@Override
+	public void leftDoubleClockwise() {
+		leftClockwise();
+		leftClockwise();
+	}
+
+	@Override
+	public void leftDoubleCounterClockwise() {
+		leftCounterClockwise();
+		leftCounterClockwise();
+	}
+
+	@Override
+	public void rightDoubleClockwise() {
+		rightClockwise();
+		rightClockwise();
+	}
+
+	@Override
+	public void rightDoubleCounterClockwise() {
+		rightCounterClockwise();
+		rightCounterClockwise();
+	}
+
+	@Override
+	public void upDoubleClockwise() {
+		upClockwise();
+		upClockwise();
+	}
+
+	@Override
+	public void upDoubleCounterClockwise() {
+		upCounterClockwise();
+		upCounterClockwise();
+	}
+
+	@Override
+	public void downDoubleClockwise() {
+		downClockwise();
+		downClockwise();
+	}
+
+	@Override
+	public void downDoubleCounterClockwise() {
+		downCounterClockwise();
+		downCounterClockwise();
+	}
+
 	private void rotateClockwiseFrontInSide(Side side) {
 		Color buffer = side.color[0][0];
 		side.color[0][0] = side.color[2][0];

@@ -25,4 +25,29 @@ public interface RotatorService {
 
 	void downCounterClockwise();
 
+	void frontDoubleClockwise();
+
+	void frontDoubleCounterClockwise();
+
+	void backDoubleClockwise();
+
+	void backDoubleCounterClockwise();
+
+	void leftDoubleClockwise();
+
+	void leftDoubleCounterClockwise();
+
+	void rightDoubleClockwise();
+
+	void rightDoubleCounterClockwise();
+
+	void upDoubleClockwise();
+
+	void upDoubleCounterClockwise();
+
+	void downDoubleClockwise();
+
+	void downDoubleCounterClockwise();
+
+
 }

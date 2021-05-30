@@ -8,6 +8,7 @@ public class App {
 		solverController.pars(args);
 		solverController.confuse();
 		solverController.solve();
+		solverController.printConfuse();
 		solverController.printCub();
 	}
 }
