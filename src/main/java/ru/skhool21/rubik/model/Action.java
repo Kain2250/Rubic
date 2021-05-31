@@ -1,7 +1,9 @@
 package ru.skhool21.rubik.model;
 
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
+@Getter
 public enum Action {
 	U("upClockwise"), U_("upCounterClockwise"),
 	D("downClockwise"), D_("downCounterClockwise"),
@@ -20,10 +22,6 @@ public enum Action {
 
 	Action(String name) {
 		this.name = name;
-	}
-
-	public String getName() {
-		return this.name;
 	}
 
 	@NotNull

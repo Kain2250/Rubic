@@ -12,40 +12,34 @@ public class SolverController {
 	private Cub cub;
 	private List<Action> confuse;
 	private List<Action> solve;
-	private List<Integer> list;
 
 	public SolverController() {
 		this.cub = new Cub();
+		this.confuse = new ArrayList<>();
+		this.solve = new ArrayList<>();
 	}
 
 	public void pars(String[] arg) {
 		//TODO: Заебошить парсинг
-		this.list = new ArrayList<>();
+		confuse.add(Action.B);
+		confuse.add(Action.D);
+		confuse.add(Action.F);
 
-		/*
-		list.add(1);
-		list.add(4);
-		list.add(2);
-		list.add(0);
-		 */
 	}
 
 	@SneakyThrows
 	public void confuse() {
-		Object cubeClass = this.cub;
+		final int GOD_NUMBER_CONFUSE = 21;
 		Random random = new Random();
 
-		confuse = new ArrayList<>();
-		if (!list.isEmpty()) {
-			for (Integer elem : list) {
-				Cub.class.getMethod(Action.fromId(elem).getName()).invoke(cubeClass);
-				confuse.add(Action.fromId(elem));
+		if (!confuse.isEmpty()) {
+			for (Action elem : confuse) {
+				Cub.class.getMethod(Action.fromId(elem.ordinal()).getName()).invoke(this.cub);
 			}
 		} else {
-			//TODO: Придумать как в ручную задавать колличество итераций
-			for (int i = 0; i < 50; i++) {
-				int nextInt = random.nextInt(24);
-				Cub.class.getMethod(Action.fromId(nextInt).getName()).invoke(cubeClass);
+			for (int i = 0; i < GOD_NUMBER_CONFUSE; i++) {
+				int nextInt = random.nextInt(Action.values().length);
+				Cub.class.getMethod(Action.fromId(nextInt).getName()).invoke(this.cub);
 				confuse.add(Action.fromId(nextInt));
 			}
 		}
@@ -53,7 +47,6 @@ public class SolverController {
 
 	public void solve() {
 		//TODO: Заебошить сольвер
-		this.solve = new ArrayList<>();
 	}
 
 	public void printSolve() {
