@@ -1,6 +1,7 @@
 package ru.skhool21.rubik.controller;
 
 import lombok.SneakyThrows;
+import ru.skhool21.rubik.exception.ParsingException;
 import ru.skhool21.rubik.model.Action;
 import ru.skhool21.rubik.model.Cub;
 
@@ -12,6 +13,8 @@ public class SolverController {
 	private Cub cub;
 	private List<Action> confuse;
 	private List<Action> solve;
+	private int randomCount;
+	private boolean isGraphicMode;
 
 	public SolverController() {
 		this.cub = new Cub();
@@ -19,11 +22,23 @@ public class SolverController {
 		this.solve = new ArrayList<>();
 	}
 
-	public void pars(String[] arg) {
-		//TODO: Заебошить парсинг
-		confuse.add(Action.B);
-		confuse.add(Action.D);
-		confuse.add(Action.F);
+	public void pars(String[] args) throws ParsingException {
+		if (!args[0].isEmpty()) {
+			for (String arg : args) {
+				if ("-help".equals(arg)) {
+					System.out.println("HELP"); //TODO: Инфу
+				} else if (arg.startsWith("-random=")) {
+					parseCount(arg);
+				} else if ("-graphic".equals(arg)) {
+					isGraphicMode = true;
+				} else {
+					parsAction(arg);
+				}
+			}
+			if (randomCount != 0 && !confuse.isEmpty()) {
+				throw new ParsingException("Запутать можно только одним типом");
+			}
+		}
 
 	}
 
@@ -34,12 +49,13 @@ public class SolverController {
 
 		if (!confuse.isEmpty()) {
 			for (Action elem : confuse) {
-				Cub.class.getMethod(Action.fromId(elem.ordinal()).getName()).invoke(this.cub);
+				Cub.class.getMethod(Action.fromId(elem.ordinal()).getMethodName()).invoke(this.cub);
 			}
 		} else {
-			for (int i = 0; i < GOD_NUMBER_CONFUSE; i++) {
+			int currentConfuseSteps = randomCount > 0 ? randomCount : GOD_NUMBER_CONFUSE;
+			for (int i = 0; i < currentConfuseSteps; i++) {
 				int nextInt = random.nextInt(Action.values().length);
-				Cub.class.getMethod(Action.fromId(nextInt).getName()).invoke(this.cub);
+				Cub.class.getMethod(Action.fromId(nextInt).getMethodName()).invoke(this.cub);
 				confuse.add(Action.fromId(nextInt));
 			}
 		}
@@ -50,7 +66,9 @@ public class SolverController {
 	}
 
 	public void printSolve() {
-		System.out.println(this.solve);
+		System.out.println(
+				String.valueOf(this.solve)
+						.replace("_", "\'"));
 	}
 
 	public void printCub() {
@@ -58,7 +76,38 @@ public class SolverController {
 	}
 
 	public void printConfuse() {
-		System.out.println(this.confuse);
+		System.out.println(
+				String.valueOf(this.confuse)
+						.replace("_", "\'"));
 	}
 
+	private void parsAction(String arg) throws ParsingException {
+		String normalizeStr = arg.replace('\'', '_');
+		boolean itsValidAction;
+
+		String[] actions = normalizeStr.split("\\s+");
+		for (String actionStr : actions) {
+			itsValidAction = false;
+			for (Action action : Action.values()) {
+				if (actionStr.equals(action.name())) {
+					itsValidAction = true;
+					confuse.add(action);
+				}
+			}
+			if (!itsValidAction) {
+				throw new ParsingException("Неизвестный ключ поворота - " + actionStr);
+			}
+		}
+	}
+
+	private void parseCount(String arg) throws ParsingException {
+		try {
+			randomCount = Integer.parseInt(arg.substring(arg.lastIndexOf("=") + 1));
+			if (randomCount < 1) {
+				throw new RuntimeException();
+			}
+		} catch (RuntimeException exception) {
+			throw new ParsingException("Не верное значение '" + arg + "'");
+		}
+	}
 }

@@ -18,10 +18,10 @@ public enum Action {
 	L2("leftDoubleClockwise"), L2_("leftDoubleCounterClockwise"),
 	R2("rightDoubleClockwise"), R2_("rightDoubleCounterClockwise");
 
-	private final String name;
+	private final String methodName;
 
-	Action(String name) {
-		this.name = name;
+	Action(String methodName) {
+		this.methodName = methodName;
 	}
 
 	@NotNull
