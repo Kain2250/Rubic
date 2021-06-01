@@ -3,7 +3,9 @@ package ru.skhool21.rubik.controller;
 import lombok.SneakyThrows;
 import ru.skhool21.rubik.exception.ParsingException;
 import ru.skhool21.rubik.model.Action;
+import ru.skhool21.rubik.model.Combo;
 import ru.skhool21.rubik.model.Cub;
+import ru.skhool21.rubik.model.Formula;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -62,6 +64,10 @@ public class SolverController {
 	}
 
 	public void solve() {
+		Combo combo = new Combo(this.cub);
+
+		combo.comboInvoke(combo.getCombo(Formula.SECOND_RIGHT.ordinal()));
+		solve.addAll(combo.getCombo(Formula.SECOND_RIGHT.ordinal()));
 		//TODO: Заебошить сольвер
 	}
 

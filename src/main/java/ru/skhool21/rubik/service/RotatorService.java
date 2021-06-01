@@ -49,5 +49,4 @@ public interface RotatorService {
 
 	void downDoubleCounterClockwise();
 
-
 }

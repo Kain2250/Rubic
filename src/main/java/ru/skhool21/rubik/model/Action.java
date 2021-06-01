@@ -3,6 +3,9 @@ package ru.skhool21.rubik.model;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Getter
 public enum Action {
 	U("upClockwise"), U_("upCounterClockwise"),
@@ -26,11 +29,35 @@ public enum Action {
 
 	@NotNull
 	public static Action fromId(int id) {
-		for(Action action : Action.values()){
-			if(action.ordinal() == id){
+		for (Action action : Action.values()){
+			if (action.ordinal() == id){
 				return action;
 			}
 		}
-		return null;
+
+		return R2_;
+	}
+
+	@NotNull
+	public static Action fromName(String name) {
+		for (Action action : Action.values()){
+			if (action.name().equals(name)){
+				return action;
+			}
+		}
+
+		return R2_;
+	}
+
+	@NotNull
+	public static List<Action> actionPars(String key) {
+		List<Action> action = new ArrayList<>();
+		String[] split = key.split("\\s");
+
+		for (String s : split) {
+			action.add(fromName(s));
+		}
+
+		return action;
 	}
 }

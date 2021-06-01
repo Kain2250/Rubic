@@ -16,6 +16,7 @@ public class App {
 		solverController.confuse();
 		solverController.solve();
 		solverController.printConfuse();
+		solverController.printSolve();
 		solverController.printCub();
 	}
 }
