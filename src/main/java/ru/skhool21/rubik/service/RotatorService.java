@@ -1,52 +1,52 @@
 package ru.skhool21.rubik.service;
 
 public interface RotatorService {
-	void frontClockwise();
+    void frontClockwise();
 
-	void frontCounterClockwise();
+    void frontCounterClockwise();
 
-	void backClockwise();
+    void backClockwise();
 
-	void backCounterClockwise();
+    void backCounterClockwise();
 
-	void leftClockwise();
+    void leftClockwise();
 
-	void leftCounterClockwise();
+    void leftCounterClockwise();
 
-	void rightClockwise();
+    void rightClockwise();
 
-	void rightCounterClockwise();
+    void rightCounterClockwise();
 
-	void upClockwise();
+    void upClockwise();
 
-	void upCounterClockwise();
+    void upCounterClockwise();
 
-	void downClockwise();
+    void downClockwise();
 
-	void downCounterClockwise();
+    void downCounterClockwise();
 
-	void frontDoubleClockwise();
+    void frontDoubleClockwise();
 
-	void frontDoubleCounterClockwise();
+    void frontDoubleCounterClockwise();
 
-	void backDoubleClockwise();
+    void backDoubleClockwise();
 
-	void backDoubleCounterClockwise();
+    void backDoubleCounterClockwise();
 
-	void leftDoubleClockwise();
+    void leftDoubleClockwise();
 
-	void leftDoubleCounterClockwise();
+    void leftDoubleCounterClockwise();
 
-	void rightDoubleClockwise();
+    void rightDoubleClockwise();
 
-	void rightDoubleCounterClockwise();
+    void rightDoubleCounterClockwise();
 
-	void upDoubleClockwise();
+    void upDoubleClockwise();
 
-	void upDoubleCounterClockwise();
+    void upDoubleCounterClockwise();
 
-	void downDoubleClockwise();
+    void downDoubleClockwise();
 
-	void downDoubleCounterClockwise();
+    void downDoubleCounterClockwise();
 
 }
