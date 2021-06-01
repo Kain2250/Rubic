@@ -1,32 +1,27 @@
 package ru.skhool21.rubik.model;
 
+import jdk.nashorn.internal.codegen.MapCreator;
 import lombok.SneakyThrows;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 
 
 public class Combo {
     private Cub cub;
-    private List<List<Action>> combo = new ArrayList<>();
-
+    private Map<Formula, List<Action>> combo = new HashMap<>();
 
     public Combo(Cub cub) {
-        FileInputStream file;
         Properties properties = new Properties();
 
-        try {
-            file = new FileInputStream("src/main/resources/formulas.properties");
-            properties.load(file);
-            combo.add(Action.actionPars(properties.getProperty("second.right")));
+        try (FileInputStream propertyFile = new FileInputStream("src/main/resources/formulas.properties")) {
+            properties.load(propertyFile);
+            combo.put(Formula.SECOND_RIGHT, Action.actionPars(properties.getProperty("second.right")));
             //TODO: Добавить в пропертя остальные формулы
         } catch (IOException e) {
             e.printStackTrace();
         }
-
         this.cub = cub;
     }
 

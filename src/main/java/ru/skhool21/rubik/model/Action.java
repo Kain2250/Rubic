@@ -34,8 +34,7 @@ public enum Action {
 				return action;
 			}
 		}
-
-		return R2_;
+		throw new IllegalArgumentException();
 	}
 
 	@NotNull
@@ -45,8 +44,7 @@ public enum Action {
 				return action;
 			}
 		}
-
-		return R2_;
+		throw new IllegalArgumentException();
 	}
 
 	@NotNull
