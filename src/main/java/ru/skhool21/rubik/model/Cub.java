@@ -7,6 +7,7 @@ import ru.skhool21.rubik.service.RotatorService;
 @Getter
 @Setter
 public class Cub implements RotatorService {
+    private static Cub instance;
     private Side front;
     private Side back;
     private Side left;
@@ -14,13 +15,20 @@ public class Cub implements RotatorService {
     private Side up;
     private Side down;
 
-    public Cub() {
+    private Cub() {
         front = new Side(Color.WHITE);
         back = new Side(Color.YELLOW);
         left = new Side(Color.GREEN);
         right = new Side(Color.BLUE);
         up = new Side(Color.ORANGE);
         down = new Side(Color.RED);
+    }
+
+    public static Cub getInstance() {
+        if (instance == null) {
+            instance = new Cub();
+        }
+        return instance;
     }
 
     @Override

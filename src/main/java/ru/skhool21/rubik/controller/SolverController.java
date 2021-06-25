@@ -19,7 +19,7 @@ public class SolverController {
     private boolean isGraphicMode;
 
     public SolverController() {
-        this.cub = new Cub();
+        this.cub = Cub.getInstance();
         this.confuse = new ArrayList<>();
         this.solve = new ArrayList<>();
     }
@@ -115,5 +115,9 @@ public class SolverController {
         } catch (RuntimeException exception) {
             throw new ParsingException("Не верное значение '" + arg + "'");
         }
+    }
+
+    public boolean isGraphicMode() {
+        return isGraphicMode;
     }
 }

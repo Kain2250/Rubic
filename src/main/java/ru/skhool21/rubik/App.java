@@ -1,5 +1,6 @@
 package ru.skhool21.rubik;
 
+import ru.skhool21.rubik.controller.GraphicsController;
 import ru.skhool21.rubik.controller.SolverController;
 import ru.skhool21.rubik.exception.ParsingException;
 
@@ -13,10 +14,15 @@ public class App {
             System.out.println(e.getMessage());
             System.exit(1);
         }
-        solverController.confuse();
-        solverController.solve();
-        solverController.printConfuse();
-        solverController.printSolve();
-        solverController.printCub();
+        if (solverController.isGraphicMode()) {
+            solverController.confuse();
+            new GraphicsController();
+        } else {
+            solverController.confuse();
+            solverController.solve();
+            solverController.printConfuse();
+            solverController.printSolve();
+            solverController.printCub();
+        }
     }
 }
