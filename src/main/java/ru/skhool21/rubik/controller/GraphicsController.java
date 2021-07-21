@@ -6,8 +6,6 @@ import javax.swing.*;
 import java.awt.*;
 
 public class GraphicsController extends JFrame {
-    private static final int FRAME_WIDTH = 700;
-    private static final int FRAME_HEIGHT = 600;
     private MyPanel panel;
 
     public GraphicsController() throws HeadlessException {

@@ -2,6 +2,10 @@ package ru.skhool21.rubik.model.Graphics;
 
 import lombok.Getter;
 import ru.skhool21.rubik.model.Cub;
+import ru.skhool21.rubik.model.Graphics.System.ClickType;
+import ru.skhool21.rubik.model.Graphics.System.MyPolygon;
+import ru.skhool21.rubik.model.Graphics.System.Point3D;
+import ru.skhool21.rubik.model.Graphics.entity.EntityManager;
 import ru.skhool21.rubik.model.Side;
 
 import javax.imageio.ImageIO;
@@ -15,53 +19,67 @@ import java.io.IOException;
 
 @Getter
 public class MyPanel extends JPanel implements ActionListener {
+    public static final int PANEL_WIDTH = 800;
+    public static final int PANEL_HEIGHT = 600;
     @Deprecated
     private final int[] xPoints = {10, 60, 60, 10};
     @Deprecated
     private final int[] yPoints = {10, 10, 60, 60};
 
-    private static final int PANEL_WIDTH = 1024;
-    private static final int PANEL_HEIGHT = 1024;
 
     private Timer timer;
-    private int xVelocity = 1;
-    private int yVelocity = 2;
-    private Block[][] blocks = new Block[6][9];
+    private final int xVelocity = 1;
+    private final int yVelocity = 2;
+    private final Block[][] blocks = new Block[6][9];
+    private static final Point point = new Point();
+    private RubicMouseListener mouseListener;
+    private EntityManager entityManager;
 
-
-    private Cub cub = Cub.getInstance();
+    private final Cub cub = Cub.getInstance();
 
     public MyPanel() {
+        this.mouseListener = new RubicMouseListener();
         this.setPreferredSize(new Dimension(PANEL_WIDTH, PANEL_HEIGHT));
         this.setBackground(Color.darkGray);
-        this.addMouseListener(new RubicMouseListener(this));
-        this.addMouseMotionListener(new RubicMouseMotions(this));
+        this.addMouseListener(this.mouseListener);
+        this.addMouseMotionListener(this.mouseListener);
+        this.addMouseWheelListener(this.mouseListener);
+        this.addKeyListener(new RubicKeyListener(this));
+        this.setFocusable(true);
+        this.entityManager = new EntityManager();
 
-        Point startPoint = new Point(50, 50);
+        Point[] startPoint = new Point[6];
+        for (int i = 0, dx = 50, dy = 50; i < startPoint.length; i++, dx += 175) {
+            startPoint[i] = new Point(dx, dy);
+        }
+        blockInit(blocks[0], cub.getFront(), startPoint[0], 50);
+        blockInit(blocks[1], cub.getBack(), startPoint[1], 50);
+        blockInit(blocks[2], cub.getUp(), startPoint[2], 50);
+        blockInit(blocks[3], cub.getDown(), startPoint[3], 50);
+        blockInit(blocks[4], cub.getLeft(), startPoint[4], 50);
+        blockInit(blocks[5], cub.getRight(), startPoint[5], 50);
 
-        blockInit(blocks[0], cub.getFront(), startPoint);
-        startPoint.translate(175, 0);
-
-        blockInit(blocks[1], cub.getBack(), startPoint);
-        startPoint.translate(175, 0);
-
-        blockInit(blocks[2], cub.getUp(), startPoint);
-        startPoint.translate(-(175 * 2), 175);
-
-        blockInit(blocks[3], cub.getDown(), startPoint);
-        startPoint.translate(175, 0);
-
-        blockInit(blocks[4], cub.getLeft(), startPoint);
-        startPoint.translate(175, 0);
-
-        blockInit(blocks[5], cub.getRight(), startPoint);
-
-        timer = new Timer(10, this);
+        this.entityManager.init();
+        timer = new Timer(1, this);
         timer.start();
-
     }
 
-    private void blockInit(Block[] block, Side side, Point start) {
+    public static void setPoint(int x, int y) {
+        MyPanel.point.setLocation(x, y);
+    }
+
+    public static Point getPoint() {
+        return point;
+    }
+
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        this.entityManager.update(this.mouseListener);
+        this.repaint();
+    }
+
+    private void blockInit(Block[] block, Side side, Point start, int size) {
         for (int i = 0, xOffset = 1, yOffset = 1, startXOffset = 0, startYOffset = 0; i < block.length; i++) {
             if (xOffset > 3) {
                 xOffset = 1;
@@ -69,8 +87,15 @@ public class MyPanel extends JPanel implements ActionListener {
                 startYOffset += 55;
                 startXOffset = 0;
             }
-            block[i] = new Block(polygonize(
-                    getOriginalPoints(start.x + startXOffset, start.y + startYOffset)),
+            int x = start.x + startXOffset;
+            int y = start.y + startYOffset;
+            block[i] = new Block(new MyPolygon(side.color[yOffset - 1][xOffset - 1].getColor(),
+                    new Point3D(x, y, 2),
+                    new Point3D(x + size, y, 1),
+                    new Point3D(x + size, y + size, 6),
+                    new Point3D(x, y + size, 0)
+            ),
+//                    polygonize(getOriginalPoints(start.x + startXOffset, start.y + startYOffset)),
                     side.color[yOffset - 1][xOffset - 1].getColor(),
                     i);
             xOffset++;
@@ -84,15 +109,14 @@ public class MyPanel extends JPanel implements ActionListener {
         g2D.setRenderingHint(
                 RenderingHints.KEY_ANTIALIASING,
                 RenderingHints.VALUE_ANTIALIAS_ON);
-
-        try {
-            for (Block[] block : blocks) {
-                drawSide(g2D, block);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
+        this.entityManager.render(g2D);
+//        try {
+//            for (Block[] block : blocks) {
+//                drawSide(g2D, block);
+//            }
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
 //        Font font = new Font("Courier", Font.ITALIC, 50);
 //        g2D.setFont(font);
 //        Rectangle2D f = font.getStringBounds("Как уебу сука!", g2D.getFontRenderContext());
@@ -107,12 +131,6 @@ public class MyPanel extends JPanel implements ActionListener {
 //        g2D.drawString("Съебался в ужасе!", xPoints[0], yPoints[0]);
     }
 
-    private void moveBlock(int[] points, int velocity) {
-        for (int iter = 0; iter < points.length; iter++) {
-            points[iter] += velocity;
-        }
-    }
-
     private Point[] getOriginalPoints(int x, int y) {
         Point[] point = new Point[4];
 
@@ -123,74 +141,21 @@ public class MyPanel extends JPanel implements ActionListener {
         return point;
     }
 
-    public Polygon polygonize(Point[] polyPoints) {
-        Polygon tempPoly = new Polygon();
-
-        for (Point polyPoint : polyPoints) {
-            tempPoly.addPoint(polyPoint.x, polyPoint.y);
-        }
-
-        return tempPoly;
-
-    }
+//    public MyPolygon polygonize(Point[] polyPoints) {
+//        MyPolygon tempPoly = new MyPolygon();
+//
+//        for (Point polyPoint : polyPoints) {
+//            tempPoly.addPoint(polyPoint.x, polyPoint.y);
+//        }
+//
+//        return tempPoly;
+//
+//    }
 
     private void drawSide(Graphics2D g2D, Block[] blocks) {
         for (Block block : blocks) {
-            g2D.setColor(block.getColor());
-            g2D.fillPolygon(block.getPolygon());
+            block.getPolygon().render(g2D);
         }
-    }
-
-    @Deprecated
-    private void drawSide(Graphics2D g2D, Side side) {
-        float countBlock = 1;
-
-        int xReturn = 0;
-        for (int y = 0; y < side.color.length; y++) {
-            for (int x = 0; x < side.color[y].length; x++) {
-                g2D.setColor(side.color[y][x].getColor());
-                g2D.fillPolygon(xPoints, yPoints, 4);
-                moveBlock(xPoints, 55);
-                xReturn += 55;
-                if (countBlock == 3 || countBlock == 6 || countBlock == 9) {
-                    moveBlock(xPoints, -xReturn);
-                    moveBlock(yPoints, 55);
-                    xReturn = 0;
-                }
-                countBlock++;
-            }
-        }
-    }
-
-    @Override
-    public void actionPerformed(ActionEvent e) {
-//        if ((xPoints[0] >= PANEL_WIDTH || xPoints[0] < 0) ||
-//                (xPoints[1] >= PANEL_WIDTH || xPoints[1] < 0) ||
-//                (xPoints[2] >= PANEL_WIDTH || xPoints[2] < 0) ||
-//                (xPoints[3] >= PANEL_WIDTH || xPoints[3] < 0)
-////                || (xPoints[0] + image.getWidth() >= PANEL_WIDTH)
-//        ) {
-//            xVelocity *= -1;
-//        }
-//        if ((yPoints[0] >= PANEL_HEIGHT || yPoints[0] < 0) ||
-//                (yPoints[1] >= PANEL_HEIGHT || yPoints[1] < 0) ||
-//                (yPoints[2] >= PANEL_HEIGHT || yPoints[2] < 0) ||
-//                (yPoints[3] >= PANEL_HEIGHT || yPoints[3] < 0)
-////                || (yPoints[0] + image.getWidth() >= PANEL_HEIGHT)
-//        ) {
-//            yVelocity *= -1;
-//        }
-//
-//        xPoints[0] += xVelocity;
-//        xPoints[1] += xVelocity;
-//        xPoints[2] += xVelocity;
-//        xPoints[3] += xVelocity;
-//
-//        yPoints[0] += yVelocity;
-//        yPoints[1] += yVelocity;
-//        yPoints[2] += yVelocity;
-//        yPoints[3] += yVelocity;
-//        repaint();
     }
 
     public static BufferedImage resize(BufferedImage img, int newW, int newH) {
@@ -213,4 +178,5 @@ public class MyPanel extends JPanel implements ActionListener {
             return null;
         }
     }
+
 }

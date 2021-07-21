@@ -25,7 +25,7 @@ public class SolverController {
     }
 
     public void pars(String[] args) throws ParsingException {
-        if (!args[0].isEmpty()) {
+        if (args.length > 0 && !args[0].isEmpty()) {
             for (String arg : args) {
                 if ("-help".equals(arg)) {
                     System.out.println("HELP"); //TODO: Инфу
