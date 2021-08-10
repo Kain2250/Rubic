@@ -12,14 +12,14 @@ import java.util.List;
 import java.util.Random;
 
 public class SolverController {
-    private Cub cub;
+    public Cub cub;
     private List<Action> confuse;
     private List<Action> solve;
     private int randomCount;
     private boolean isGraphicMode;
 
     public SolverController() {
-        this.cub = Cub.getInstance();
+        this.cub = new Cub();
         this.confuse = new ArrayList<>();
         this.solve = new ArrayList<>();
     }

@@ -1,8 +1,4 @@
-package ru.skhool21.rubik.model.Graphics;
-
-import ru.skhool21.rubik.model.Cub;
-import ru.skhool21.rubik.model.Graphics.System.MyPolygon;
-import ru.skhool21.rubik.model.Graphics.System.Point3D;
+package ru.skhool21.rubik.graphics;
 
 import java.awt.*;
 import java.awt.event.KeyAdapter;

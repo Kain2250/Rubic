@@ -1,8 +1,8 @@
-package ru.skhool21.rubik.model.Graphics.System;
+package ru.skhool21.rubik.graphics.System;
 
 import java.awt.*;
-import java.util.*;
 import java.util.List;
+import java.util.*;
 
 public class MyPolygon {
 

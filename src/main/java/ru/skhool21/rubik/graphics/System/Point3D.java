@@ -1,6 +1,6 @@
-package ru.skhool21.rubik.model.Graphics.System;
+package ru.skhool21.rubik.graphics.System;
 
-import ru.skhool21.rubik.model.Graphics.MyPanel;
+import ru.skhool21.rubik.graphics.MyPanel;
 
 import java.awt.*;
 

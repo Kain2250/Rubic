@@ -1,11 +1,10 @@
-package ru.skhool21.rubik.model.Graphics;
+package ru.skhool21.rubik.graphics;
 
 import lombok.Getter;
+import ru.skhool21.rubik.graphics.System.MyPolygon;
+import ru.skhool21.rubik.graphics.System.Point3D;
+import ru.skhool21.rubik.graphics.entity.EntityManager;
 import ru.skhool21.rubik.model.Cub;
-import ru.skhool21.rubik.model.Graphics.System.ClickType;
-import ru.skhool21.rubik.model.Graphics.System.MyPolygon;
-import ru.skhool21.rubik.model.Graphics.System.Point3D;
-import ru.skhool21.rubik.model.Graphics.entity.EntityManager;
 import ru.skhool21.rubik.model.Side;
 
 import javax.imageio.ImageIO;
@@ -35,7 +34,7 @@ public class MyPanel extends JPanel implements ActionListener {
     private RubicMouseListener mouseListener;
     private EntityManager entityManager;
 
-    private final Cub cub = Cub.getInstance();
+    private final Cub cub = new Cub();
 
     public MyPanel() {
         this.mouseListener = new RubicMouseListener();
@@ -89,14 +88,14 @@ public class MyPanel extends JPanel implements ActionListener {
             }
             int x = start.x + startXOffset;
             int y = start.y + startYOffset;
-            block[i] = new Block(new MyPolygon(side.color[yOffset - 1][xOffset - 1].getColor(),
+            block[i] = new Block(new MyPolygon(side.colorSide[yOffset - 1][xOffset - 1].getColor(),
                     new Point3D(x, y, 2),
                     new Point3D(x + size, y, 1),
                     new Point3D(x + size, y + size, 6),
                     new Point3D(x, y + size, 0)
             ),
 //                    polygonize(getOriginalPoints(start.x + startXOffset, start.y + startYOffset)),
-                    side.color[yOffset - 1][xOffset - 1].getColor(),
+                    side.colorSide[yOffset - 1][xOffset - 1].getColor(),
                     i);
             xOffset++;
             startXOffset += 55;

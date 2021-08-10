@@ -1,8 +1,8 @@
-package ru.skhool21.rubik.model.Graphics;
+package ru.skhool21.rubik.graphics;
 
-import ru.skhool21.rubik.model.Graphics.System.MyPolygon;
+import ru.skhool21.rubik.graphics.System.MyPolygon;
 
-import java.awt.Color;
+import java.awt.*;
 
 public class Block {
     private MyPolygon polygon;

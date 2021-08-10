@@ -1,6 +1,6 @@
-package ru.skhool21.rubik.model.Graphics.model;
+package ru.skhool21.rubik.graphics.model;
 
-import ru.skhool21.rubik.model.Graphics.System.MyPolygon;
+import ru.skhool21.rubik.graphics.System.MyPolygon;
 
 import java.awt.*;
 

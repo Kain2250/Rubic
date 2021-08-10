@@ -1,10 +1,10 @@
-package ru.skhool21.rubik.model.Graphics.entity;
+package ru.skhool21.rubik.graphics.entity;
 
-import ru.skhool21.rubik.model.Graphics.RubicMouseListener;
-import ru.skhool21.rubik.model.Graphics.System.ClickType;
-import ru.skhool21.rubik.model.Graphics.System.Point3D;
-import ru.skhool21.rubik.model.Graphics.entity.builder.ComplexEntityBuilder;
-import ru.skhool21.rubik.model.Graphics.entity.impl.IEntity;
+import ru.skhool21.rubik.graphics.RubicMouseListener;
+import ru.skhool21.rubik.graphics.System.ClickType;
+import ru.skhool21.rubik.graphics.System.Point3D;
+import ru.skhool21.rubik.graphics.entity.builder.ComplexEntityBuilder;
+import ru.skhool21.rubik.graphics.entity.impl.IEntity;
 
 import java.awt.*;
 import java.util.ArrayList;

@@ -1,10 +1,10 @@
-package ru.skhool21.rubik.model.Graphics.entity.builder;
+package ru.skhool21.rubik.graphics.entity.builder;
 
-import ru.skhool21.rubik.model.Graphics.System.MyPolygon;
-import ru.skhool21.rubik.model.Graphics.System.Point3D;
-import ru.skhool21.rubik.model.Graphics.model.Tetrahedron;
-import ru.skhool21.rubik.model.Graphics.entity.Entity;
-import ru.skhool21.rubik.model.Graphics.entity.impl.IEntity;
+import ru.skhool21.rubik.graphics.System.MyPolygon;
+import ru.skhool21.rubik.graphics.System.Point3D;
+import ru.skhool21.rubik.graphics.entity.Entity;
+import ru.skhool21.rubik.graphics.entity.impl.IEntity;
+import ru.skhool21.rubik.graphics.model.Tetrahedron;
 
 import java.awt.*;
 import java.util.ArrayList;

@@ -2,33 +2,243 @@ package ru.skhool21.rubik.model;
 
 import lombok.Getter;
 import lombok.Setter;
+import ru.skhool21.rubik.dna.Population;
+import ru.skhool21.rubik.exception.ParsingException;
 import ru.skhool21.rubik.service.RotatorService;
+
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 
 @Getter
 @Setter
 public class Cub implements RotatorService {
-    private static Cub instance;
+    public static final Cub idealCub = new Cub();
     private Side front;
     private Side back;
     private Side left;
     private Side right;
     private Side up;
     private Side down;
+    private List<Action> confuse;
+    private List<Action> genes = new ArrayList<>();
+    private int fitness = 0;
+    private boolean isFitnessChanged = true;
 
-    private Cub() {
-        front = new Side(Color.WHITE);
-        back = new Side(Color.YELLOW);
-        left = new Side(Color.GREEN);
-        right = new Side(Color.BLUE);
-        up = new Side(Color.ORANGE);
-        down = new Side(Color.RED);
+    public Cub() {
+        front = new Side(ColorSide.WHITE);
+        back = new Side(ColorSide.YELLOW);
+        left = new Side(ColorSide.GREEN);
+        right = new Side(ColorSide.BLUE);
+        up = new Side(ColorSide.ORANGE);
+        down = new Side(ColorSide.RED);
     }
 
-    public static Cub getInstance() {
-        if (instance == null) {
-            instance = new Cub();
+    public void runSequence(String sequence) {
+        String normalizeStr = sequence.replace('\'', '_');
+        boolean itsValidAction;
+        List<Action> actionsList = new ArrayList<>();
+
+        String[] actions = normalizeStr.split("\\s+");
+        for (String actionStr : actions) {
+            itsValidAction = false;
+            for (Action action : Action.values()) {
+                if (actionStr.equals(action.name())) {
+                    itsValidAction = true;
+                    actionsList.add(action);
+                }
+            }
+            if (!itsValidAction) {
+                try {
+                    throw new ParsingException("Неизвестный ключ поворота - " + actionStr);
+                } catch (ParsingException e) {
+                    e.printStackTrace();
+                }
+            }
         }
-        return instance;
+
+        if (!actionsList.isEmpty()) {
+            for (Action elem : actionsList) {
+                try {
+                    Cub.class.getMethod(Action.fromId(elem.ordinal()).getMethodName()).invoke(this);
+                } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    public void runSequence(List<Action> sequence) {
+        if (!sequence.isEmpty()) {
+            for (Action elem : sequence) {
+                try {
+                    Cub.class.getMethod(Action.fromId(elem.ordinal()).getMethodName()).invoke(this);
+                } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    public Cub initCubChromosome() {
+        Random random = new Random();
+        for (int i = 0; i < Population.getLength(); i++) {
+            genes.add(Action.fromId(random.nextInt(Action.values().length - 1)));
+        }
+        runSequence(genes);
+        return this;
+    }
+
+    public int recalculateFitness() {
+        return layer1Coincidence() * 10 +
+                layer1Angles() * 20 +
+                layer2Coincidence() * 50 +
+                layer3Coincidence() * 70 +
+                layer3Angles() * 100;
+    }
+
+    public int getFitness() {
+        if (isFitnessChanged) {
+            fitness = recalculateFitness();
+            isFitnessChanged = false;
+        }
+        return fitness;
+    }
+
+    public List<Action> getGenes() {
+        isFitnessChanged = true;
+        return genes;
+    }
+
+    private int layer1Coincidence() {
+        int fitness = 0;
+        if (this.front.colorSide[0][1] == idealCub.front.colorSide[0][1] &&
+                this.up.colorSide[2][1] == idealCub.up.colorSide[2][1]) {
+            fitness += 1;
+        }
+
+        if (this.front.colorSide[1][2] == idealCub.front.colorSide[1][2] &&
+                this.right.colorSide[1][0] == idealCub.right.colorSide[1][0]) {
+            fitness += 1;
+        }
+
+        if (this.front.colorSide[1][0] == idealCub.front.colorSide[1][0] &&
+                this.left.colorSide[1][2] == idealCub.left.colorSide[1][2]) {
+            fitness += 1;
+        }
+
+        if (this.front.colorSide[2][1] == idealCub.front.colorSide[2][1] &&
+                this.down.colorSide[0][1] == idealCub.down.colorSide[0][1]) {
+            fitness += 1;
+        }
+        return fitness;
+    }
+
+    private int layer1Angles() {
+        int fitness = 0;
+        if (this.front.colorSide[0][0] == idealCub.front.colorSide[0][0] &&
+                this.up.colorSide[2][0] == idealCub.up.colorSide[2][0] &&
+                this.left.colorSide[0][2] == idealCub.left.colorSide[0][2]) {
+            fitness += 1;
+        }
+
+        if (this.front.colorSide[0][2] == idealCub.front.colorSide[0][2] &&
+                this.up.colorSide[2][2] == idealCub.up.colorSide[2][2] &&
+                this.right.colorSide[0][0] == idealCub.right.colorSide[0][0]) {
+            fitness += 1;
+        }
+
+        if (this.front.colorSide[2][0] == idealCub.front.colorSide[2][0] &&
+                this.down.colorSide[0][0] == idealCub.down.colorSide[0][0] &&
+                this.left.colorSide[2][2] == idealCub.left.colorSide[2][2]) {
+            fitness += 1;
+        }
+
+        if (this.front.colorSide[2][2] == idealCub.front.colorSide[2][2] &&
+                this.right.colorSide[2][0] == idealCub.right.colorSide[2][0] &&
+                this.down.colorSide[0][2] == idealCub.down.colorSide[0][2]) {
+            fitness += 1;
+        }
+        return fitness;
+    }
+
+    private int layer2Coincidence() {
+        int fitness = 0;
+        if (this.up.colorSide[1][0] == idealCub.up.colorSide[1][0] &&
+                this.left.colorSide[0][1] == idealCub.left.colorSide[0][1]) {
+            fitness += 1;
+        }
+
+        if (this.up.colorSide[1][2] == idealCub.up.colorSide[1][2] &&
+                this.right.colorSide[0][1] == idealCub.right.colorSide[0][1]) {
+            fitness += 1;
+        }
+
+        if (this.right.colorSide[2][1] == idealCub.right.colorSide[2][1] &&
+                this.down.colorSide[1][2] == idealCub.down.colorSide[1][2]) {
+            fitness += 1;
+        }
+
+        if (this.left.colorSide[2][1] == idealCub.left.colorSide[2][1] &&
+                this.down.colorSide[1][0] == idealCub.down.colorSide[1][0]) {
+            fitness += 1;
+        }
+        return fitness;
+    }
+
+    private int layer3Coincidence() {
+        int fitness = 0;
+        if (this.back.colorSide[0][1] == idealCub.back.colorSide[0][1] &&
+                this.up.colorSide[0][1] == idealCub.up.colorSide[0][1]) {
+            fitness += 1;
+        }
+
+        if (this.back.colorSide[1][0] == idealCub.back.colorSide[1][0] &&
+                this.right.colorSide[1][2] == idealCub.right.colorSide[1][2]) {
+            fitness += 1;
+        }
+
+        if (this.back.colorSide[1][2] == idealCub.back.colorSide[1][2] &&
+                this.left.colorSide[1][0] == idealCub.left.colorSide[1][0]) {
+            fitness += 1;
+        }
+
+        if (this.back.colorSide[2][1] == idealCub.back.colorSide[2][1] &&
+                this.down.colorSide[2][1] == idealCub.down.colorSide[2][1]) {
+            fitness += 1;
+        }
+
+        return fitness;
+    }
+
+    private int layer3Angles() {
+        int fitness = 0;
+        if (this.back.colorSide[0][0] == idealCub.back.colorSide[0][0] &&
+                this.up.colorSide[0][2] == idealCub.up.colorSide[0][2] &&
+                this.right.colorSide[0][2] == idealCub.right.colorSide[0][2]) {
+            fitness += 1;
+        }
+
+        if (this.back.colorSide[0][2] == idealCub.back.colorSide[0][2] &&
+                this.up.colorSide[0][0] == idealCub.up.colorSide[0][0] &&
+                this.left.colorSide[0][0] == idealCub.left.colorSide[0][0]) {
+            fitness += 1;
+        }
+
+        if (this.back.colorSide[2][0] == idealCub.back.colorSide[2][0] &&
+                this.down.colorSide[2][2] == idealCub.down.colorSide[2][2] &&
+                this.right.colorSide[2][2] == idealCub.right.colorSide[2][2]) {
+            fitness += 1;
+        }
+
+        if (this.back.colorSide[2][2] == idealCub.back.colorSide[2][2] &&
+                this.down.colorSide[2][0] == idealCub.down.colorSide[2][0] &&
+                this.left.colorSide[2][0] == idealCub.left.colorSide[2][0]) {
+            fitness += 1;
+        }
+
+        return fitness;
     }
 
     @Override
@@ -38,271 +248,272 @@ public class Cub implements RotatorService {
                 "Left\n" + this.left +
                 "Right\n" + this.right +
                 "Up\n" + this.up +
-                "Down\n" + this.down;
+                "Down\n" + this.down +
+                "Fitness: " + this.getFitness();
     }
 
     @Override
     public void frontClockwise() {
         rotateClockwiseFrontInSide(front);
-        Color buffer = left.color[0][2];
-        left.color[0][2] = down.color[0][0];
-        down.color[0][0] = right.color[2][0];
-        right.color[2][0] = up.color[2][2];
-        up.color[2][2] = buffer;
+        ColorSide buffer = left.colorSide[0][2];
+        left.colorSide[0][2] = down.colorSide[0][0];
+        down.colorSide[0][0] = right.colorSide[2][0];
+        right.colorSide[2][0] = up.colorSide[2][2];
+        up.colorSide[2][2] = buffer;
 
-        buffer = left.color[1][2];
-        left.color[1][2] = down.color[0][1];
-        down.color[0][1] = right.color[1][0];
-        right.color[1][0] = up.color[2][1];
-        up.color[2][1] = buffer;
+        buffer = left.colorSide[1][2];
+        left.colorSide[1][2] = down.colorSide[0][1];
+        down.colorSide[0][1] = right.colorSide[1][0];
+        right.colorSide[1][0] = up.colorSide[2][1];
+        up.colorSide[2][1] = buffer;
 
-        buffer = left.color[2][2];
-        left.color[2][2] = down.color[0][2];
-        down.color[0][2] = right.color[0][0];
-        right.color[0][0] = up.color[2][0];
-        up.color[2][0] = buffer;
+        buffer = left.colorSide[2][2];
+        left.colorSide[2][2] = down.colorSide[0][2];
+        down.colorSide[0][2] = right.colorSide[0][0];
+        right.colorSide[0][0] = up.colorSide[2][0];
+        up.colorSide[2][0] = buffer;
     }
 
     @Override
     public void frontCounterClockwise() {
         rotateCounterClockwiseFrontInSide(front);
-        Color buffer = left.color[0][2];
-        left.color[0][2] = up.color[2][2];
-        up.color[2][2] = right.color[2][0];
-        right.color[2][0] = down.color[0][0];
-        down.color[0][0] = buffer;
+        ColorSide buffer = left.colorSide[0][2];
+        left.colorSide[0][2] = up.colorSide[2][2];
+        up.colorSide[2][2] = right.colorSide[2][0];
+        right.colorSide[2][0] = down.colorSide[0][0];
+        down.colorSide[0][0] = buffer;
 
-        buffer = left.color[1][2];
-        left.color[1][2] = up.color[2][1];
-        up.color[2][1] = right.color[1][0];
-        right.color[1][0] = down.color[0][1];
-        down.color[0][1] = buffer;
+        buffer = left.colorSide[1][2];
+        left.colorSide[1][2] = up.colorSide[2][1];
+        up.colorSide[2][1] = right.colorSide[1][0];
+        right.colorSide[1][0] = down.colorSide[0][1];
+        down.colorSide[0][1] = buffer;
 
-        buffer = left.color[2][2];
-        left.color[2][2] = up.color[2][0];
-        up.color[2][0] = right.color[0][0];
-        right.color[0][0] = down.color[0][2];
-        down.color[0][2] = buffer;
+        buffer = left.colorSide[2][2];
+        left.colorSide[2][2] = up.colorSide[2][0];
+        up.colorSide[2][0] = right.colorSide[0][0];
+        right.colorSide[0][0] = down.colorSide[0][2];
+        down.colorSide[0][2] = buffer;
     }
 
     @Override
     public void backClockwise() {
         rotateClockwiseFrontInSide(back);
-        Color buffer = up.color[0][0];
-        up.color[0][0] = right.color[0][2];
-        right.color[0][2] = down.color[2][2];
-        down.color[2][2] = left.color[2][0];
-        left.color[2][0] = buffer;
+        ColorSide buffer = up.colorSide[0][0];
+        up.colorSide[0][0] = right.colorSide[0][2];
+        right.colorSide[0][2] = down.colorSide[2][2];
+        down.colorSide[2][2] = left.colorSide[2][0];
+        left.colorSide[2][0] = buffer;
 
-        buffer = up.color[0][1];
-        up.color[0][1] = right.color[1][2];
-        right.color[1][2] = down.color[2][1];
-        down.color[2][1] = left.color[1][0];
-        left.color[1][0] = buffer;
+        buffer = up.colorSide[0][1];
+        up.colorSide[0][1] = right.colorSide[1][2];
+        right.colorSide[1][2] = down.colorSide[2][1];
+        down.colorSide[2][1] = left.colorSide[1][0];
+        left.colorSide[1][0] = buffer;
 
-        buffer = up.color[0][2];
-        up.color[0][2] = right.color[2][2];
-        right.color[2][2] = down.color[2][0];
-        down.color[2][0] = left.color[0][0];
-        left.color[0][0] = buffer;
+        buffer = up.colorSide[0][2];
+        up.colorSide[0][2] = right.colorSide[2][2];
+        right.colorSide[2][2] = down.colorSide[2][0];
+        down.colorSide[2][0] = left.colorSide[0][0];
+        left.colorSide[0][0] = buffer;
     }
 
     @Override
     public void backCounterClockwise() {
         rotateCounterClockwiseFrontInSide(back);
-        Color buffer = up.color[0][0];
-        up.color[0][0] = left.color[2][0];
-        left.color[2][0] = down.color[2][2];
-        down.color[2][2] = right.color[0][2];
-        right.color[0][2] = buffer;
+        ColorSide buffer = up.colorSide[0][0];
+        up.colorSide[0][0] = left.colorSide[2][0];
+        left.colorSide[2][0] = down.colorSide[2][2];
+        down.colorSide[2][2] = right.colorSide[0][2];
+        right.colorSide[0][2] = buffer;
 
-        buffer = up.color[0][1];
-        up.color[0][1] = left.color[1][0];
-        left.color[1][0] = down.color[2][1];
-        down.color[2][1] = right.color[1][2];
-        right.color[1][2] = buffer;
+        buffer = up.colorSide[0][1];
+        up.colorSide[0][1] = left.colorSide[1][0];
+        left.colorSide[1][0] = down.colorSide[2][1];
+        down.colorSide[2][1] = right.colorSide[1][2];
+        right.colorSide[1][2] = buffer;
 
-        buffer = up.color[0][2];
-        up.color[0][2] = left.color[0][0];
-        left.color[0][0] = down.color[2][0];
-        down.color[2][0] = right.color[2][2];
-        right.color[2][2] = buffer;
+        buffer = up.colorSide[0][2];
+        up.colorSide[0][2] = left.colorSide[0][0];
+        left.colorSide[0][0] = down.colorSide[2][0];
+        down.colorSide[2][0] = right.colorSide[2][2];
+        right.colorSide[2][2] = buffer;
     }
 
     @Override
     public void leftClockwise() {
         rotateClockwiseFrontInSide(left);
-        Color buffer = up.color[0][0];
-        up.color[0][0] = back.color[2][2];
-        back.color[2][2] = down.color[0][0];
-        down.color[0][0] = front.color[0][0];
-        front.color[0][0] = buffer;
+        ColorSide buffer = up.colorSide[0][0];
+        up.colorSide[0][0] = back.colorSide[2][2];
+        back.colorSide[2][2] = down.colorSide[0][0];
+        down.colorSide[0][0] = front.colorSide[0][0];
+        front.colorSide[0][0] = buffer;
 
-        buffer = up.color[1][0];
-        up.color[1][0] = back.color[1][2];
-        back.color[1][2] = down.color[1][0];
-        down.color[1][0] = front.color[1][0];
-        front.color[1][0] = buffer;
+        buffer = up.colorSide[1][0];
+        up.colorSide[1][0] = back.colorSide[1][2];
+        back.colorSide[1][2] = down.colorSide[1][0];
+        down.colorSide[1][0] = front.colorSide[1][0];
+        front.colorSide[1][0] = buffer;
 
-        buffer = up.color[2][0];
-        up.color[2][0] = back.color[0][2];
-        back.color[0][2] = down.color[2][0];
-        down.color[2][0] = front.color[2][0];
-        front.color[2][0] = buffer;
+        buffer = up.colorSide[2][0];
+        up.colorSide[2][0] = back.colorSide[0][2];
+        back.colorSide[0][2] = down.colorSide[2][0];
+        down.colorSide[2][0] = front.colorSide[2][0];
+        front.colorSide[2][0] = buffer;
     }
 
     @Override
     public void leftCounterClockwise() {
         rotateCounterClockwiseFrontInSide(left);
-        Color buffer = up.color[0][0];
-        up.color[0][0] = front.color[0][0];
-        front.color[0][0] = down.color[0][0];
-        down.color[0][0] = back.color[2][2];
-        back.color[2][2] = buffer;
+        ColorSide buffer = up.colorSide[0][0];
+        up.colorSide[0][0] = front.colorSide[0][0];
+        front.colorSide[0][0] = down.colorSide[0][0];
+        down.colorSide[0][0] = back.colorSide[2][2];
+        back.colorSide[2][2] = buffer;
 
-        buffer = up.color[1][0];
-        up.color[1][0] = front.color[1][0];
-        front.color[1][0] = down.color[1][0];
-        down.color[1][0] = back.color[1][2];
-        back.color[1][2] = buffer;
+        buffer = up.colorSide[1][0];
+        up.colorSide[1][0] = front.colorSide[1][0];
+        front.colorSide[1][0] = down.colorSide[1][0];
+        down.colorSide[1][0] = back.colorSide[1][2];
+        back.colorSide[1][2] = buffer;
 
-        buffer = up.color[2][0];
-        up.color[2][0] = front.color[2][0];
-        front.color[2][0] = down.color[2][0];
-        down.color[2][0] = back.color[0][2];
-        back.color[0][2] = buffer;
+        buffer = up.colorSide[2][0];
+        up.colorSide[2][0] = front.colorSide[2][0];
+        front.colorSide[2][0] = down.colorSide[2][0];
+        down.colorSide[2][0] = back.colorSide[0][2];
+        back.colorSide[0][2] = buffer;
     }
 
     @Override
     public void rightClockwise() {
         rotateClockwiseFrontInSide(right);
-        Color buffer = up.color[2][2];
-        up.color[2][2] = front.color[2][2];
-        front.color[2][2] = down.color[2][2];
-        down.color[2][2] = back.color[0][0];
-        back.color[0][0] = buffer;
+        ColorSide buffer = up.colorSide[2][2];
+        up.colorSide[2][2] = front.colorSide[2][2];
+        front.colorSide[2][2] = down.colorSide[2][2];
+        down.colorSide[2][2] = back.colorSide[0][0];
+        back.colorSide[0][0] = buffer;
 
-        buffer = up.color[1][2];
-        up.color[1][2] = front.color[1][2];
-        front.color[1][2] = down.color[1][2];
-        down.color[1][2] = back.color[1][0];
-        back.color[1][0] = buffer;
+        buffer = up.colorSide[1][2];
+        up.colorSide[1][2] = front.colorSide[1][2];
+        front.colorSide[1][2] = down.colorSide[1][2];
+        down.colorSide[1][2] = back.colorSide[1][0];
+        back.colorSide[1][0] = buffer;
 
-        buffer = up.color[0][2];
-        up.color[0][2] = front.color[0][2];
-        front.color[0][2] = down.color[0][2];
-        down.color[0][2] = back.color[2][0];
-        back.color[2][0] = buffer;
+        buffer = up.colorSide[0][2];
+        up.colorSide[0][2] = front.colorSide[0][2];
+        front.colorSide[0][2] = down.colorSide[0][2];
+        down.colorSide[0][2] = back.colorSide[2][0];
+        back.colorSide[2][0] = buffer;
     }
 
     @Override
     public void rightCounterClockwise() {
         rotateCounterClockwiseFrontInSide(right);
-        Color buffer = up.color[2][2];
-        up.color[2][2] = back.color[0][0];
-        back.color[0][0] = down.color[2][2];
-        down.color[2][2] = front.color[2][2];
-        front.color[2][2] = buffer;
+        ColorSide buffer = up.colorSide[2][2];
+        up.colorSide[2][2] = back.colorSide[0][0];
+        back.colorSide[0][0] = down.colorSide[2][2];
+        down.colorSide[2][2] = front.colorSide[2][2];
+        front.colorSide[2][2] = buffer;
 
-        buffer = up.color[1][2];
-        up.color[1][2] = back.color[1][0];
-        back.color[1][0] = down.color[1][2];
-        down.color[1][2] = front.color[1][2];
-        front.color[1][2] = buffer;
+        buffer = up.colorSide[1][2];
+        up.colorSide[1][2] = back.colorSide[1][0];
+        back.colorSide[1][0] = down.colorSide[1][2];
+        down.colorSide[1][2] = front.colorSide[1][2];
+        front.colorSide[1][2] = buffer;
 
-        buffer = up.color[0][2];
-        up.color[0][2] = back.color[2][0];
-        back.color[2][0] = down.color[0][2];
-        down.color[0][2] = front.color[0][2];
-        front.color[0][2] = buffer;
+        buffer = up.colorSide[0][2];
+        up.colorSide[0][2] = back.colorSide[2][0];
+        back.colorSide[2][0] = down.colorSide[0][2];
+        down.colorSide[0][2] = front.colorSide[0][2];
+        front.colorSide[0][2] = buffer;
     }
 
     @Override
     public void upClockwise() {
         rotateClockwiseFrontInSide(up);
-        Color buffer = back.color[0][2];
-        back.color[0][2] = left.color[0][2];
-        left.color[0][2] = front.color[0][2];
-        front.color[0][2] = right.color[0][2];
-        right.color[0][2] = buffer;
+        ColorSide buffer = back.colorSide[0][2];
+        back.colorSide[0][2] = left.colorSide[0][2];
+        left.colorSide[0][2] = front.colorSide[0][2];
+        front.colorSide[0][2] = right.colorSide[0][2];
+        right.colorSide[0][2] = buffer;
 
-        buffer = back.color[0][1];
-        back.color[0][1] = left.color[0][1];
-        left.color[0][1] = front.color[0][1];
-        front.color[0][1] = right.color[0][1];
-        right.color[0][1] = buffer;
+        buffer = back.colorSide[0][1];
+        back.colorSide[0][1] = left.colorSide[0][1];
+        left.colorSide[0][1] = front.colorSide[0][1];
+        front.colorSide[0][1] = right.colorSide[0][1];
+        right.colorSide[0][1] = buffer;
 
-        buffer = back.color[0][0];
-        back.color[0][0] = left.color[0][0];
-        left.color[0][0] = front.color[0][0];
-        front.color[0][0] = right.color[0][0];
-        right.color[0][0] = buffer;
+        buffer = back.colorSide[0][0];
+        back.colorSide[0][0] = left.colorSide[0][0];
+        left.colorSide[0][0] = front.colorSide[0][0];
+        front.colorSide[0][0] = right.colorSide[0][0];
+        right.colorSide[0][0] = buffer;
     }
 
     @Override
     public void upCounterClockwise() {
         rotateCounterClockwiseFrontInSide(up);
-        Color buffer = back.color[0][2];
-        back.color[0][2] = right.color[0][2];
-        right.color[0][2] = front.color[0][2];
-        front.color[0][2] = left.color[0][2];
-        left.color[0][2] = buffer;
+        ColorSide buffer = back.colorSide[0][2];
+        back.colorSide[0][2] = right.colorSide[0][2];
+        right.colorSide[0][2] = front.colorSide[0][2];
+        front.colorSide[0][2] = left.colorSide[0][2];
+        left.colorSide[0][2] = buffer;
 
-        buffer = back.color[0][1];
-        back.color[0][1] = right.color[0][1];
-        right.color[0][1] = front.color[0][1];
-        front.color[0][1] = left.color[0][1];
-        left.color[0][1] = buffer;
+        buffer = back.colorSide[0][1];
+        back.colorSide[0][1] = right.colorSide[0][1];
+        right.colorSide[0][1] = front.colorSide[0][1];
+        front.colorSide[0][1] = left.colorSide[0][1];
+        left.colorSide[0][1] = buffer;
 
-        buffer = back.color[0][0];
-        back.color[0][0] = right.color[0][0];
-        right.color[0][0] = front.color[0][0];
-        front.color[0][0] = left.color[0][0];
-        left.color[0][0] = buffer;
+        buffer = back.colorSide[0][0];
+        back.colorSide[0][0] = right.colorSide[0][0];
+        right.colorSide[0][0] = front.colorSide[0][0];
+        front.colorSide[0][0] = left.colorSide[0][0];
+        left.colorSide[0][0] = buffer;
     }
 
     @Override
     public void downClockwise() {
         rotateClockwiseFrontInSide(down);
-        Color buffer = front.color[2][0];
-        front.color[2][0] = left.color[2][0];
-        left.color[2][0] = back.color[2][0];
-        back.color[2][0] = right.color[2][0];
-        right.color[2][0] = buffer;
+        ColorSide buffer = front.colorSide[2][0];
+        front.colorSide[2][0] = left.colorSide[2][0];
+        left.colorSide[2][0] = back.colorSide[2][0];
+        back.colorSide[2][0] = right.colorSide[2][0];
+        right.colorSide[2][0] = buffer;
 
-        buffer = front.color[2][1];
-        front.color[2][1] = left.color[2][1];
-        left.color[2][1] = back.color[2][1];
-        back.color[2][1] = right.color[2][1];
-        right.color[2][1] = buffer;
+        buffer = front.colorSide[2][1];
+        front.colorSide[2][1] = left.colorSide[2][1];
+        left.colorSide[2][1] = back.colorSide[2][1];
+        back.colorSide[2][1] = right.colorSide[2][1];
+        right.colorSide[2][1] = buffer;
 
-        buffer = front.color[2][2];
-        front.color[2][2] = left.color[2][2];
-        left.color[2][2] = back.color[2][2];
-        back.color[2][2] = right.color[2][2];
-        right.color[2][2] = buffer;
+        buffer = front.colorSide[2][2];
+        front.colorSide[2][2] = left.colorSide[2][2];
+        left.colorSide[2][2] = back.colorSide[2][2];
+        back.colorSide[2][2] = right.colorSide[2][2];
+        right.colorSide[2][2] = buffer;
     }
 
     @Override
     public void downCounterClockwise() {
         rotateCounterClockwiseFrontInSide(down);
-        Color buffer = front.color[2][0];
-        front.color[2][0] = right.color[2][0];
-        right.color[2][0] = back.color[2][0];
-        back.color[2][0] = left.color[2][0];
-        left.color[2][0] = buffer;
+        ColorSide buffer = front.colorSide[2][0];
+        front.colorSide[2][0] = right.colorSide[2][0];
+        right.colorSide[2][0] = back.colorSide[2][0];
+        back.colorSide[2][0] = left.colorSide[2][0];
+        left.colorSide[2][0] = buffer;
 
-        buffer = front.color[2][1];
-        front.color[2][1] = right.color[2][1];
-        right.color[2][1] = back.color[2][1];
-        back.color[2][1] = left.color[2][1];
-        left.color[2][1] = buffer;
+        buffer = front.colorSide[2][1];
+        front.colorSide[2][1] = right.colorSide[2][1];
+        right.colorSide[2][1] = back.colorSide[2][1];
+        back.colorSide[2][1] = left.colorSide[2][1];
+        left.colorSide[2][1] = buffer;
 
-        buffer = front.color[2][2];
-        front.color[2][2] = right.color[2][2];
-        right.color[2][2] = back.color[2][2];
-        back.color[2][2] = left.color[2][2];
-        left.color[2][2] = buffer;
+        buffer = front.colorSide[2][2];
+        front.colorSide[2][2] = right.colorSide[2][2];
+        right.colorSide[2][2] = back.colorSide[2][2];
+        back.colorSide[2][2] = left.colorSide[2][2];
+        left.colorSide[2][2] = buffer;
     }
 
     @Override
@@ -378,30 +589,30 @@ public class Cub implements RotatorService {
     }
 
     private void rotateClockwiseFrontInSide(Side side) {
-        Color buffer = side.color[0][0];
-        side.color[0][0] = side.color[2][0];
-        side.color[2][0] = side.color[2][2];
-        side.color[2][2] = side.color[0][2];
-        side.color[0][2] = buffer;
+        ColorSide buffer = side.colorSide[0][0];
+        side.colorSide[0][0] = side.colorSide[2][0];
+        side.colorSide[2][0] = side.colorSide[2][2];
+        side.colorSide[2][2] = side.colorSide[0][2];
+        side.colorSide[0][2] = buffer;
 
-        buffer = side.color[0][1];
-        side.color[0][1] = side.color[1][0];
-        side.color[1][0] = side.color[2][1];
-        side.color[2][1] = side.color[1][2];
-        side.color[1][2] = buffer;
+        buffer = side.colorSide[0][1];
+        side.colorSide[0][1] = side.colorSide[1][0];
+        side.colorSide[1][0] = side.colorSide[2][1];
+        side.colorSide[2][1] = side.colorSide[1][2];
+        side.colorSide[1][2] = buffer;
     }
 
     private void rotateCounterClockwiseFrontInSide(Side side) {
-        Color buffer = side.color[0][0];
-        side.color[0][0] = side.color[0][2];
-        side.color[0][2] = side.color[2][2];
-        side.color[2][2] = side.color[2][0];
-        side.color[2][0] = buffer;
+        ColorSide buffer = side.colorSide[0][0];
+        side.colorSide[0][0] = side.colorSide[0][2];
+        side.colorSide[0][2] = side.colorSide[2][2];
+        side.colorSide[2][2] = side.colorSide[2][0];
+        side.colorSide[2][0] = buffer;
 
-        buffer = side.color[0][1];
-        side.color[0][1] = side.color[1][2];
-        side.color[1][2] = side.color[2][1];
-        side.color[2][1] = side.color[1][0];
-        side.color[1][0] = buffer;
+        buffer = side.colorSide[0][1];
+        side.colorSide[0][1] = side.colorSide[1][2];
+        side.colorSide[1][2] = side.colorSide[2][1];
+        side.colorSide[2][1] = side.colorSide[1][0];
+        side.colorSide[1][0] = buffer;
     }
 }

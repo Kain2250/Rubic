@@ -1,8 +1,8 @@
-package ru.skhool21.rubik.model.Graphics.entity;
+package ru.skhool21.rubik.graphics.entity;
 
-import ru.skhool21.rubik.model.Graphics.System.MyPolygon;
-import ru.skhool21.rubik.model.Graphics.model.Tetrahedron;
-import ru.skhool21.rubik.model.Graphics.entity.impl.IEntity;
+import ru.skhool21.rubik.graphics.System.MyPolygon;
+import ru.skhool21.rubik.graphics.entity.impl.IEntity;
+import ru.skhool21.rubik.graphics.model.Tetrahedron;
 
 import java.awt.*;
 import java.util.ArrayList;

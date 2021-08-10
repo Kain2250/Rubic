@@ -1,4 +1,4 @@
-package ru.skhool21.rubik.model.Graphics.entity.impl;
+package ru.skhool21.rubik.graphics.entity.impl;
 
 import java.awt.*;
 

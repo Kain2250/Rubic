@@ -1,8 +1,7 @@
-package ru.skhool21.rubik.model.Graphics;
+package ru.skhool21.rubik.graphics;
 
-import ru.skhool21.rubik.model.Graphics.System.ClickType;
+import ru.skhool21.rubik.graphics.System.ClickType;
 
-import java.awt.*;
 import java.awt.event.*;
 
 public class RubicMouseListener implements MouseListener, MouseMotionListener, MouseWheelListener {

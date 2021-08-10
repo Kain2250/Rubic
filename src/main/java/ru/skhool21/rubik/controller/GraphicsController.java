@@ -1,6 +1,6 @@
 package ru.skhool21.rubik.controller;
 
-import ru.skhool21.rubik.model.Graphics.MyPanel;
+import ru.skhool21.rubik.graphics.MyPanel;
 
 import javax.swing.*;
 import java.awt.*;
