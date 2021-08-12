@@ -13,15 +13,18 @@ import java.util.Random;
 
 public class SolverController {
     public Cub cub;
-    private List<Action> confuse;
+    private static List<Action> confuse = new ArrayList<>();
     private List<Action> solve;
     private int randomCount;
     private boolean isGraphicMode;
 
     public SolverController() {
         this.cub = new Cub();
-        this.confuse = new ArrayList<>();
         this.solve = new ArrayList<>();
+    }
+
+    public static List<Action> getConfuse() {
+        return confuse;
     }
 
     public void pars(String[] args) throws ParsingException {
@@ -45,7 +48,7 @@ public class SolverController {
     }
 
     @SneakyThrows
-    public void confuse() {
+    public List<Action> confuse() {
         final int GOD_NUMBER_CONFUSE = 21;
         Random random = new Random();
 
@@ -61,13 +64,14 @@ public class SolverController {
                 confuse.add(Action.fromId(nextInt));
             }
         }
+        return confuse;
     }
 
     public void solve() {
         Combination combination = new Combination(this.cub);
 
-        combination.comboInvoke(combination.getCombo(Formula.SECOND_RIGHT));
-        solve.addAll(combination.getCombo(Formula.SECOND_RIGHT));
+//        combination.comboInvoke(combination.getCombo(Formula.SECOND_RIGHT));
+//        solve.addAll(combination.getCombo(Formula.SECOND_RIGHT));
         //TODO: Заебошить сольвер
     }
 

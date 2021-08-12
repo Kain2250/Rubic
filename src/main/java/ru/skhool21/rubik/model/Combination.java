@@ -19,7 +19,8 @@ public class Combination {
 
         try (FileInputStream propertyFile = new FileInputStream("src/main/resources/formulas.properties")) {
             properties.load(propertyFile);
-            combo.put(Formula.SECOND_RIGHT, Action.actionPars(properties.getProperty("second.right")));
+            //combo.put(Formula.SECOND_RIGHT, Action.actionPars(properties.getProperty("second.right")));
+            combo.put(Formula.SECOND_LEFT, Action.actionPars(properties.getProperty("level2.up.right")));
 
             //TODO: Добавить в пропертя остальные формулы
         } catch (IOException e) {

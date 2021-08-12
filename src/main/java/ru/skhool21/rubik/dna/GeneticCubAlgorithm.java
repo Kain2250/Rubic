@@ -1,5 +1,6 @@
 package ru.skhool21.rubik.dna;
 
+import ru.skhool21.rubik.controller.SolverController;
 import ru.skhool21.rubik.model.Action;
 import ru.skhool21.rubik.model.Cub;
 
@@ -52,19 +53,24 @@ public class GeneticCubAlgorithm {
 	}
 
 	private Cub mutateCubChromosome(Cub chromosome) {
-		Cub mutateChromosome = new Cub().initCubChromosome();
-		for (int i = 0; i < chromosome.getGenes().size(); i++) {
-			if (Math.random() < MUTATION_RATE) {
-				mutateChromosome.getGenes().set(i, Action.fromId(random.nextInt(Action.values().length - 1)));
-			} else {
-				mutateChromosome.getGenes().add(i, chromosome.getGenes().get(i));
-			}
+		Cub mutateChromosome = new Cub();
+		mutateChromosome.runSequence(SolverController.getConfuse());
+		mutateChromosome = mutateChromosome.initCubChromosome();
+
+		if (!chromosome.isLevel1Solve()) {
+
+		} else if (!chromosome.isLevel2Solve()) {
+			mutateChromosome = solveLevel2();
+		} else if (!chromosome.isLevel3Solve()) {
+
 		}
 		return mutateChromosome;
 	}
 
 	private Population selectTournamentPopulation(Population population) {
 		Population tournamentPopulation = new Population(Population.getLength());
+		tournamentPopulation.confusePopulation();
+		tournamentPopulation.initPopulation();
 		for (int i = 0; i < TOURNAMENT_SELECTION_SIZE; i++) {
 			tournamentPopulation.getCubs().add(population.getCubs().get((int) (Math.random() * population.getCubs().size())));
 		}

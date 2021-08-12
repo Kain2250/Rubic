@@ -1,5 +1,7 @@
 package ru.skhool21.rubik.dna;
 
+import ru.skhool21.rubik.controller.SolverController;
+import ru.skhool21.rubik.model.Action;
 import ru.skhool21.rubik.model.Cub;
 
 import java.util.ArrayList;
@@ -14,14 +16,21 @@ public class Population {
 	public Population(int length) {
 		Population.length = length;
 		cubs = new ArrayList<>();
+		for (int i = 0; i < length; i++) {
+			cubs.add(new Cub());
+		}
 	}
 
 	public Population initPopulation() {
-		for (int i = 0; i < length; i++) {
-			cubs.add(new Cub().initCubChromosome());
-		}
+		cubs.forEach(Cub::initCubChromosome);
 		sortChromosomesByFitness();
 		return this;
+	}
+
+	public void confusePopulation() {
+		cubs.forEach(cub -> {
+					cub.runSequence(SolverController.getConfuse());
+				});
 	}
 
 	public List<Cub> getCubs() {
