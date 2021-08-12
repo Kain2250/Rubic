@@ -5,6 +5,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 @Getter
 public enum Action {
@@ -25,6 +26,10 @@ public enum Action {
 
     Action(String methodName) {
         this.methodName = methodName;
+    }
+
+    public static Action getRandomAction() {
+        return Action.fromId(new Random().nextInt(values().length - 1));
     }
 
     @NotNull

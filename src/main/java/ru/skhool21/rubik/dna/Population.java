@@ -27,6 +27,14 @@ public class Population {
 		return this;
 	}
 
+	public Population initPopulation(int length) {
+		cubs.forEach((cub -> {
+			cub.initCubChromosome(length);
+		}));
+		sortChromosomesByFitness();
+		return this;
+	}
+
 	public void confusePopulation() {
 		cubs.forEach(cub -> {
 					cub.runSequence(SolverController.getConfuse());

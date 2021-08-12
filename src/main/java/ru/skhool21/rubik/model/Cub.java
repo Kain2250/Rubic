@@ -100,10 +100,19 @@ public class Cub implements RotatorService {
 		return this;
 	}
 
+	public Cub initCubChromosome(int length) {
+		Random random = new Random();
+		for (int i = 0; i < length; i++) {
+			genes.add(Action.fromId(random.nextInt(Action.values().length - 1)));
+		}
+		runSequence(genes);
+		return this;
+	}
+
 	private int recalculateFitness() {
-		return layer1() * (isLevel1Solve ? 20 : 10) +
-                layer2() * (isLevel2Solve ? 50 : 10) +
-                layer3() * (isLevel3Solve ? 100 : 10);
+		return layer1() * (isLevel1Solve ? 10 : 0) +
+                layer2() * (isLevel2Solve ? 50 : 0) +
+                layer3() * (isLevel3Solve ? 100 : 0);
 	}
 
 	public int getFitness() {

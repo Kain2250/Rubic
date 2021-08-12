@@ -5,6 +5,7 @@ import ru.skhool21.rubik.controller.SolverController;
 import ru.skhool21.rubik.dna.GeneticCubAlgorithm;
 import ru.skhool21.rubik.dna.Population;
 import ru.skhool21.rubik.exception.ParsingException;
+import ru.skhool21.rubik.model.Cub;
 
 import java.lang.reflect.InvocationTargetException;
 
@@ -23,37 +24,31 @@ public class App {
 			new GraphicsController();
 		} else {
 			solverController.confuse();
-			Population population = new Population(1);
+			Population population = new Population(10);
 			GeneticCubAlgorithm cubAlgorithm = new GeneticCubAlgorithm();
-			population.printCubChromosomes();
-            System.out.println("----------------------------------------------------------");
             population.confusePopulation();
-            population.printCubChromosomes();
-            System.out.println("----------------------------------------------------------");
             population.initPopulation();
-			population.printCubChromosomes();
-			System.out.println(SolverController.getConfuse());
-//            Cub solveCub = null;
-//            int generationNumber = 0;
-//            boolean run = true;
-//            while (run) {
-//                generationNumber += 1;
-//                System.out.println("Fitness: " + population.getCubs().get(0).getFitness());
-//                System.out.println("Gens : " + population.getCubs().get(0).getGenes());
-//                for (Cub currentCub : population.getCubs()) {
-//                    if (currentCub.getFitness() >= 1160) {
-//                        run = false;
-//                        solveCub = currentCub;
-//                    }
-//                }
-//                population = cubAlgorithm.evolve(population);
-//                population.sortChromosomesByFitness();
-//                System.out.println();
-//            }
-//            System.out.println("Generation number = " + generationNumber);
-//            System.out.println(solveCub.toString());
-//            solverController.printConfuse();
-//            System.out.println(solveCub.getGenes());
+            Cub solveCub = null;
+            int generationNumber = 0;
+            boolean run = true;
+            while (run) {
+                generationNumber += 1;
+                System.out.println("Fitness: " + population.getCubs().get(0).getFitness());
+                System.out.println("Gens : " + population.getCubs().get(0).getGenes());
+                for (Cub currentCub : population.getCubs()) {
+                    if (currentCub.isLevel1Solve()) {
+                        run = false;
+                        solveCub = currentCub;
+                    }
+                }
+                population = cubAlgorithm.evolve(population);
+                population.sortChromosomesByFitness();
+                System.out.println();
+            }
+            System.out.println("Generation number = " + generationNumber);
+            System.out.println(solveCub.toString());
+            solverController.printConfuse();
+            System.out.println(solveCub.getGenes());
 		}
 	}
 

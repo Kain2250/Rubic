@@ -7,13 +7,14 @@ import ru.skhool21.rubik.model.Cub;
 import java.util.Random;
 
 public class GeneticCubAlgorithm {
-	public static final int NUMBER_OF_ELITE_CHROMOSOMES = 1;
+	public static final int NUMBER_OF_ELITE_CHROMOSOMES = 2;
 	public static final int TOURNAMENT_SELECTION_SIZE = 4;
+	public static final int NEW_GEN_COUNT = 3;
 	public static final double MUTATION_RATE = 0.25d;
 	public Random random = new Random();
 
 	public Population evolve(Population population) {
-		return mutatePopulation(crossoverPopulation(population));
+		return mutatePopulation(population);
 	}
 
 	private Population crossoverPopulation(Population population) {
@@ -30,12 +31,14 @@ public class GeneticCubAlgorithm {
 	}
 
 	private Population mutatePopulation(Population population) {
-		Population mutatePopulation = new Population(population.getCubs().size()).initPopulation();
+		Population mutatePopulation = new Population(population.getCubs().size());
+		mutatePopulation.confusePopulation();
+		mutatePopulation.initPopulation(population.getCubs().size());
 		for (int i = 0; i < NUMBER_OF_ELITE_CHROMOSOMES; i++) {
-			mutatePopulation.getCubs().add(i, population.getCubs().get(0));
+			mutatePopulation.getCubs().set(i, population.getCubs().get(i));
 		}
 		for (int i = NUMBER_OF_ELITE_CHROMOSOMES; i < population.getCubs().size(); i++) {
-			mutatePopulation.getCubs().add(i, mutateCubChromosome(population.getCubs().get(i)));
+			mutatePopulation.getCubs().set(i, mutateCubChromosome(population.getCubs().get(i)));
 		}
 		return mutatePopulation;
 	}
@@ -55,12 +58,21 @@ public class GeneticCubAlgorithm {
 	private Cub mutateCubChromosome(Cub chromosome) {
 		Cub mutateChromosome = new Cub();
 		mutateChromosome.runSequence(SolverController.getConfuse());
-		mutateChromosome = mutateChromosome.initCubChromosome();
+		mutateChromosome = mutateChromosome.initCubChromosome(chromosome.getGenes().size());
 
 		if (!chromosome.isLevel1Solve()) {
+			for (int i = 0; i < chromosome.getGenes().size(); i++) {
 
+				if (Math.random() < MUTATION_RATE) {
+					if (Math.random() < 0.5) {
+						mutateChromosome.getGenes().set(i, Action.getRandomAction());
+					} else {
+						mutateChromosome.getGenes().set(i, chromosome.getGenes().get(i));
+					}
+				}
+			}
 		} else if (!chromosome.isLevel2Solve()) {
-			mutateChromosome = solveLevel2();
+
 		} else if (!chromosome.isLevel3Solve()) {
 
 		}
