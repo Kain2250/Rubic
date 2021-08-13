@@ -5,7 +5,6 @@ import ru.skhool21.rubik.exception.ParsingException;
 import ru.skhool21.rubik.model.Action;
 import ru.skhool21.rubik.model.Combination;
 import ru.skhool21.rubik.model.Cub;
-import ru.skhool21.rubik.model.Formula;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,6 +14,7 @@ public class SolverController {
     public Cub cub;
     private static List<Action> confuse = new ArrayList<>();
     private List<Action> solve;
+    private static final Combination combinations = new Combination();
     private int randomCount;
     private boolean isGraphicMode;
 
@@ -25,6 +25,10 @@ public class SolverController {
 
     public static List<Action> getConfuse() {
         return confuse;
+    }
+
+    public static Combination getCombinations() {
+        return combinations;
     }
 
     public void pars(String[] args) throws ParsingException {
@@ -44,11 +48,10 @@ public class SolverController {
                 throw new ParsingException("Запутать можно только одним типом");
             }
         }
-
     }
 
     @SneakyThrows
-    public List<Action> confuse() {
+    public void confuse() {
         final int GOD_NUMBER_CONFUSE = 21;
         Random random = new Random();
 
@@ -64,15 +67,6 @@ public class SolverController {
                 confuse.add(Action.fromId(nextInt));
             }
         }
-        return confuse;
-    }
-
-    public void solve() {
-        Combination combination = new Combination(this.cub);
-
-//        combination.comboInvoke(combination.getCombo(Formula.SECOND_RIGHT));
-//        solve.addAll(combination.getCombo(Formula.SECOND_RIGHT));
-        //TODO: Заебошить сольвер
     }
 
     public void printSolve() {
@@ -87,7 +81,7 @@ public class SolverController {
 
     public void printConfuse() {
         System.out.println(
-                String.valueOf(this.confuse)
+                String.valueOf(confuse)
                         .replace("_", "\'"));
     }
 
@@ -117,7 +111,7 @@ public class SolverController {
                 throw new RuntimeException();
             }
         } catch (RuntimeException exception) {
-            throw new ParsingException("Не верное значение '" + arg + "'");
+            throw new ParsingException("Неверное значение '" + arg + "'");
         }
     }
 
